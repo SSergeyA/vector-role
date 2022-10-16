@@ -1,13 +1,25 @@
 ---
 # tasks file for vector-role
-- name: Download Vector
+- name: Download Vector | CentOS
   ansible.builtin.get_url:
     url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
     dest: "./vector-{{ vector_version }}-1.x86_64.rpm"
-- name: Install Vector
+  when: ansible_facts.distribution == "CentOS"
+- name: Install Vector | CentOS
   become: true
   ansible.builtin.yum:
     name: "vector-{{ vector_version }}-1.x86_64.rpm"
+  when: ansible_facts.distribution == "CentOS"
+- name: Download Vector  | Ubuntu
+  ansible.builtin.get_url:
+    url: "https://packages.timber.io/vector/{{ vector_version }}/vector_{{ vector_version }}-1_amd64.deb"
+    dest: "./vector_{{ vector_version }}_amd64.deb"
+  when: ansible_facts.distribution == "Ubuntu"
+- name: Install Vector | Ubuntu
+  become: true
+  ansible.builtin.apt:
+    deb: "vector_{{ vector_version }}_amd64.deb"
+  when: ansible_facts.distribution == "Ubuntu"
 - name: Template config
   ansible.builtin.template:
     src: vector.yml.j2
@@ -24,9 +36,18 @@
     mode: 0755
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_gid }}"
+- name: Creates directory
+  become: true
+  file:
+    path: /var/lib/vector/local_logs
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: 0644
 - name: Start service
   become: true
   ansible.builtin.systemd:
     name: vector
     state: started
     daemon_reload: true
+  when: ansible_facts.virtualization_type != "docker"

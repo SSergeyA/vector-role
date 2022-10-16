@@ -1,7 +1,10 @@
 galaxy_info:
-  author: your name
-  description: your role description
-  company: your company (optional)
+  role_name: generate_random_password
+  galaxy_name: tbuyvoets
+  namespase: test
+  author: sergey
+  description: vector-role
+  company: ssa
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
