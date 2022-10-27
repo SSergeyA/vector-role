@@ -1,0 +1,22 @@
+node ('centos'){
+   
+    stage('Git checkout'){
+        git credentialsId: '04701acb-e269-486e-84fa-ac067a79f127', url: 'git@github.com:aragastmatb/example-playbook.git'
+    }
+    
+    def prod_run = "${env.PROD_RUN}"
+    println prod_run
+   
+   if (env.PROD_RUN == "true") {
+        stage('Run playbook  prod'){
+            sh 'ansible-playbook site.yml -i inventory/prod.yml '
+        }
+    }
+   
+    else {
+        stage('Run playbook  test'){
+            sh 'ansible-playbook site.yml -i inventory/prod.yml --check --diff '
+        }
+        
+    }
+} 
